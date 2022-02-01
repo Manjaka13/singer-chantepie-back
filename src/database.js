@@ -51,6 +51,12 @@ class Database {
 	remove(key, value) {
 		this.db.push(this.prefix, this.get().filter(item => item[key] != value));
 	}
+
+	// Replaces an entry with another one
+	replace(key, value, data) {
+		this.remove(key, value);
+		this.push(data);
+	}
 }
 
 module.exports = Database;
