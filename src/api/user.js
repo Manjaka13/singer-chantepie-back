@@ -3,7 +3,6 @@
 */
 
 const Express = require("express");
-const Database = require("../database");
 const Auth = require("../auth");
 const route = Express.Router();
 const path = "/user/";
@@ -18,19 +17,9 @@ route.get("/", (req, res) => {
 
 // Sign in incoming user
 route.post("/sign", (req, res) => {
-	let token = null;
 	const user = req.body;
-	const database = new Database("users");
-	const authUser = database.get().filter(item =>
-		item.name === user.name &&
-		item.password === user.password
-	);
-	console.log("Incoming user ", user);
-	console.log("Found user ", authUser);
-	if(authUser.length > 0)
-		token = auth.sign(user);
 	res.json({
-		data: token
+		data: auth.login(user)
 	});
 });
 
