@@ -55,16 +55,25 @@ const Auth = {
 	// Verifies token
 	verify: (req) => {
 		const bearer = req.headers.authorization;
+		const user = {
+			email: req.body.email,
+			password: req.body.password,
+		};
 		let result = {
 			caption: "Utilisateur non vérifié !",
 			status: 0
 		};
-		if(bearer) {
+		if(bearer && typeof user.email === "string" && typeof user.password === "string") {
 			const token = bearer.replace("Bearer ", "");
 			result.status = 1;
 			result.caption = "Utilisateur vérifié !";
 			try {
 				result.payload = jwt.verify(token, process.env.JWT_SECRET);
+				if(result.payload.data.email != user.email || result.payload.data.password != user.password) {
+					result.payload = null;
+					result.status = 0;
+					result.caption = "Utilisateur non vérifié !";
+				}
 			} catch(e) {
 				result.payload = null;
 				result.status = 0;
