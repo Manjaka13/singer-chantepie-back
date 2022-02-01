@@ -6,13 +6,13 @@ const jwt = require("jsonwebtoken");
 const Database = require("./database");
 
 class Auth {
-	constructor(secret) {
+	constructor() {
 		this.secret = process.env.SECRET;
-		this.table = "users";
+		this.table = process.env.DB_USERS;
 	}
 
 	// Sign user
-	sign(user) {
+	generate(user) {
 		return jwt.sign({
 			exp: Math.floor(Date.now() / 1000) + (60 * 60),
 			data: user
@@ -28,23 +28,20 @@ class Auth {
 			console.log("Invalid token");
 		}
 		if(result) {
-			if(user.name === result.data.name && user.password === result.data.password)
+			if(user.email === result.data.email && user.password === result.data.password)
 				return true;
 		}
 		return false;
 	}
 
-	// Returns valid token if correct credentials
-	login(user) {
-		let token = null;
+	// Returns corresponding user
+	get(user) {
 		const database = new Database(this.table);
 		const authUser = database.get().filter(item =>
-			item.name === user.name &&
+			item.email === user.email &&
 			item.password === user.password
 		);
-		if(authUser.length > 0)
-			token = this.sign(user);
-		return token;
+		return authUser[0] || null;
 	}
 }
 

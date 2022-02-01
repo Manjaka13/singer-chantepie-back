@@ -37,3 +37,7 @@ For loading environment variables
 ### node-json-db
 
 Uses JSON files as database
+
+### jsonwebtoken
+
+For authentication with JWT tokens
