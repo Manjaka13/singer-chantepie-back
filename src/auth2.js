@@ -77,20 +77,42 @@ const Auth = {
 	// Auth verification middleware
 	isLogged: (req, res, next) => {
 		const bearer = req.headers.authorization;
+		const user = {
+			email: req.body.email,
+			password: req.body.password,
+		};
 		res.locals.level = 0;
-		if(bearer) {
-			let user = null;
+		if(bearer && typeof user.email === "string" && typeof user.password === "string") {
+			let tokenUser = null;
 			const token = bearer.replace("Bearer ", "");
 			try {
-				user = jwt.verify(token, process.env.JWT_SECRET);
+				tokenUser = jwt.verify(token, process.env.JWT_SECRET);
+				if(tokenUser.data.email != user.email || tokenUser.data.password != user.password)
+					tokenUser = null;
 			} catch(e) {
 				console.log(e);
 			}
-			if(user)
-				res.locals.level = user.data.level;
+			if(tokenUser)
+				res.locals.level = tokenUser.data.level;
 		}
 		next();
-	}
+	},
+
+	// Creates new user
+	// create: (req, res) => {
+	// 	const userLevel = res.locals.level;
+	// 	let result = {
+	// 		payload: null,
+	// 		caption: "",
+	// 		status: 0
+	// 	};
+	// 	if(userLevel < 2)
+	// 		result.caption = "Ce compte ne permet pas ce genre d'action.";
+	// 	else {
+
+	// 	}
+	// 	return result;
+	// }
 };
 
 module.exports = Auth;

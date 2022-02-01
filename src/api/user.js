@@ -28,6 +28,11 @@ route.get("/verify", (req, res) => {
 	res.json(auth.verify(req));
 });
 
+// Creates new user
+route.get("/new", (req, res) => {
+	res.json(auth.create(req));
+});
+
 /*
 // Creates new user
 route.post("/new", (req, res) => {
@@ -79,13 +84,5 @@ route.delete("/delete", (req, res) => {
 	});
 });
 */
-
-// 404 route
-route.post("/*", (req, res) => {
-	res.json({
-		data: "URL de requête invalide.",
-		status: 0
-	});
-});
 
 module.exports = {path, route};
