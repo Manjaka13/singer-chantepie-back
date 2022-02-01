@@ -19,7 +19,7 @@ route.get("/", (req, res) => {
 route.post("/sign", (req, res) => {
 	const user = req.body;
 	res.json({
-		data: auth.login(user)
+		data: auth.sign(user)
 	});
 });
 
