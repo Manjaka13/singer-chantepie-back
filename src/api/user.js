@@ -3,7 +3,7 @@
 */
 
 const Express = require("express");
-const auth = require("../auth2");
+const auth = require("../auth");
 const Database = require("../database");
 const route = Express.Router();
 const path = "/user/";
