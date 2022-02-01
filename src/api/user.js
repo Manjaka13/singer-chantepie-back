@@ -3,45 +3,32 @@
 */
 
 const Express = require("express");
-const Auth = require("../auth");
+const auth = require("../auth2");
 const Database = require("../database");
 const route = Express.Router();
 const path = "/user/";
-const auth = new Auth();
 
 // Get all users
-route.get("/", (req, res) => {
+route.get("/", auth.isLogged, (req, res) => {
+	const userLevel = res.locals.level;
 	res.json({
-		data: "User list"
+		caption: `Requesting user level ${userLevel}`,
+		status: 1,
+		payload: userLevel
 	});
 });
 
 // Sign in incoming user
 route.post("/sign", (req, res) => {
-	const user = req.body;
-	const authUser = auth.get(user);
-	let status = 0;
-	let result = null;
-	let payload = null;
-	if(authUser) {
-		if(!authUser.verified)
-			result = "Le compte de cet utilisateur n'est pas encore vérifié.";
-		else {
-			result = auth.generate(user);
-			status = 1;
-			authUser.password = null;
-			payload = authUser;
-		}
-	}
-	else
-		result = "Veuillez vérifier vos identifiants.";
-	res.json({
-		data: result,
-		payload,
-		status
-	});
+	res.json(auth.sign(req));
 });
 
+// Verifies token
+route.get("/verify", (req, res) => {
+	res.json(auth.verify(req));
+});
+
+/*
 // Creates new user
 route.post("/new", (req, res) => {
 	const user = req.body;
@@ -91,6 +78,7 @@ route.delete("/delete", (req, res) => {
 		status
 	});
 });
+*/
 
 // 404 route
 route.post("/*", (req, res) => {
