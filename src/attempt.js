@@ -4,10 +4,10 @@
 
 const Database = require("./database");
 
-class Attempt {
-	get(user) {
+const Attempt = {
+	get: (user) => {
 		let nextAttempt = 1;
-		const database = new Database(process.env.DB_ATTEMP);
+		const database = new Database(process.env.DB_ATTEMPT);
 		const loginAttempt = database.get("email", user.email);
 		database.remove("email", user.email);
 		if(loginAttempt && loginAttempt.attempts)
@@ -16,13 +16,13 @@ class Attempt {
 			email: user.email,
 			attempts: nextAttempt
 		});
-		return nextAttempt;
-	}
+		return (3 - nextAttempt);
+	},
 
-	reset(user) {
-		const database = new Database(process.env.DB_ATTEMP);
+	reset: (user) => {
+		const database = new Database(process.env.DB_ATTEMPT);
 		database.remove("email", user.email);
 	}
-}
+};
 
 module.exports = Attempt;

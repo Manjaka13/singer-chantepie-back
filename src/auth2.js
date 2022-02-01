@@ -4,11 +4,13 @@
 
 const jwt = require("jsonwebtoken");
 const Database = require("./database");
+const attempt = require("./attempt");
 
 const Auth = {
 	// Signs user in, returns token and full user data
 	sign: (req) => {
 		const user = req.body;
+		const remainingTries = attempt.get(user);
 		let result = {
 			payload: null,
 			caption: "",
@@ -25,8 +27,12 @@ const Auth = {
 			if(!authUser)
 				result.caption = "Cet utilisateur n'existe pas.";
 			// Wrong password
-			else if (authUser.password != user.password)
-				result.caption = "Mot de passe invalide.";
+			else if (authUser.password != user.password) {
+				if(remainingTries <= 0)
+					result.caption = "Ce compte est bloqué, veuillez contacter un admnistrateur.";
+				else
+					result.caption = `Mot de passe invalide. ${remainingTries} essai(s) restants`;
+			}
 			// Unverified account
 			else if(!authUser.verified)
 				result.caption = "Ce compte n'a pas encore été vérifié.";
@@ -40,6 +46,7 @@ const Auth = {
 					data: authUser
 				}, process.env.JWT_SECRET);
 				result.payload = authUser;
+				attempt.reset(authUser);
 			}
 		}
 		return result;
