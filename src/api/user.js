@@ -29,8 +29,8 @@ route.get("/verify", (req, res) => {
 });
 
 // Creates new user
-route.get("/new", (req, res) => {
-	res.json(auth.create(req));
+route.post("/new", auth.isLogged, (req, res) => {
+	res.json(auth.create(req, res));
 });
 
 /*

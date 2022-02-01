@@ -108,20 +108,42 @@ const Auth = {
 	},
 
 	// Creates new user
-	// create: (req, res) => {
-	// 	const userLevel = res.locals.level;
-	// 	let result = {
-	// 		payload: null,
-	// 		caption: "",
-	// 		status: 0
-	// 	};
-	// 	if(userLevel < 2)
-	// 		result.caption = "Ce compte ne permet pas ce genre d'action.";
-	// 	else {
-
-	// 	}
-	// 	return result;
-	// }
+	create: (req, res) => {
+		const userLevel = res.locals.level;
+		let result = {
+			caption: "",
+			status: 0
+		};
+		if(userLevel < 2)
+			result.caption = "Ce compte ne permet pas ce genre d'action.";
+		else {
+			const user = req.body;
+			const database = new Database(process.env.DB_USERS);
+			if(typeof user.newName != "string" || user.newName.length <= 2)
+				result.caption = "Le nom doit contenir 3 caractères minimum.";
+			else if(typeof user.newEmail != "string" || user.newEmail.length <= 6)
+				result.caption = "L'e-mail est invalide.";
+			else if(typeof user.newPassword != "string" || user.newPassword.length <= 4)
+				result.caption = "Le mot de passe doit contenir 5 caractères minimum.";
+			else {
+				const exists = database.get("email", user.newEmail);
+				if(exists)
+					result.caption = "Cet utilisateur existe déjà !";
+				else {
+					database.push({
+						email: user.newEmail,
+						password: user.newPassword,
+						name: user.newName,
+						level: 1,
+						verified: false
+					});
+					result.caption = "Compte créé avec succès, veuillez vérifier votre e-mail !";
+					result.status = 1;
+				}
+			}
+		}
+		return result;
+	}
 };
 
 module.exports = Auth;
