@@ -47,24 +47,4 @@ route.delete("/delete", auth.isLogged, (req, res) => {
 	res.json(auth.remove(req, res));
 });
 
-/*
-route.delete("/delete", (req, res) => {
-	const email = req.body.email;
-	const database = new Database(process.env.DB_USERS);
-	let result = "";
-	let status = 0;
-	if(typeof email != "string" || email.length <= 6)
-		result = "E-mail invalide";
-	else {
-		database.remove("email", email);
-		result = "Utilisateur supprimé avec succès !";
-		status = 1;
-	}
-	res.json({
-		data: result,
-		status
-	});
-});
-*/
-
 module.exports = {path, route};

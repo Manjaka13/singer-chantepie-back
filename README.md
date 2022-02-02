@@ -22,4 +22,4 @@ npm start
 
 ### PS
 
-Do not forget the .env variable
+Do not forget to put the .env variable in root

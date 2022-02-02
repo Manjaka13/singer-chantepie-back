@@ -1,15 +1,19 @@
-// Get env variable
+/*
+	Server entry point
+*/
+
+// Import and configure everything needed
 require("dotenv").config();
-// Import necessary tools
 const Express = require("express");
 const cors = require("cors");
-// Import APIs
 const user = require("./api/user");
 
+// Setup
 const app = Express();
 const port = process.env.PORT || 3001;
+const welcomeMessage = `Singer Chantepie server running on port ${port}`;
 
-// Apply Middlewares
+// Apply middlewares
 app.use(cors());
 app.use(Express.urlencoded({extended: true}));
 app.use(Express.json());
@@ -20,11 +24,12 @@ app.use(user.path, user.route);
 // Default home route
 app.get("/", (req, res) => {
 	res.json({
-		"data": "Singer Chantepie server."
+		caption: welcomeMessage,
+		status: 1
 	});
 });
 
 // Listen
 app.listen(port, () => {
-	console.log("Singer Chantepie server running on port " + port);
+	console.log(welcomeMessage);
 });
