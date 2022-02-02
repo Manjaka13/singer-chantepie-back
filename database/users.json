@@ -1,9 +1,9 @@
 {
     "data": [
         {
-            "email": "manjaka.rajaonson@gmail.com",
+            "email": "test@gmail.com",
             "password": "testtest",
-            "name": "Manjaka",
+            "name": "Test",
             "level": 2,
             "verified": true,
             "_id": "52b9b566-1a32-4d74-bdc5-9b0b9967659a"

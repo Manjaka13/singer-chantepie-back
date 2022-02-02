@@ -41,6 +41,7 @@ const Auth = {
 				result.status = 1;
 				delete authUser._id;
 				delete authUser.verified;
+				delete authUser.password;
 				result.caption = jwt.sign({
 					exp: Math.floor(Date.now() / 1000) + expiration,
 					data: authUser
@@ -55,29 +56,22 @@ const Auth = {
 	// Verifies token
 	verify: (req) => {
 		const bearer = req.headers.authorization;
-		const user = {
-			email: req.body.email,
-			password: req.body.password,
-		};
 		let result = {
-			caption: "Utilisateur non vérifié !",
+			caption: "Utilisateur inconnu",
 			status: 0
 		};
-		if(bearer && typeof user.email === "string" && typeof user.password === "string") {
+		if(bearer) {
 			const token = bearer.replace("Bearer ", "");
-			result.status = 1;
-			result.caption = "Utilisateur vérifié !";
+			const db = new Database(process.env.DB_USERS);
 			try {
-				result.payload = jwt.verify(token, process.env.JWT_SECRET);
-				if(result.payload.data.email != user.email || result.payload.data.password != user.password) {
-					result.payload = null;
-					result.status = 0;
-					result.caption = "Utilisateur non vérifié !";
-				}
+				const jwtUser = db.get("email", jwt.verify(token, process.env.JWT_SECRET).data.email);
+				delete jwtUser._id;
+				delete jwtUser.password;
+				result.status = 1;
+				result.caption = "Utilisateur vérifié !";
+				result.payload = jwtUser;
 			} catch(e) {
-				result.payload = null;
-				result.status = 0;
-				result.caption = "Utilisateur non vérifié !";
+				console.log(e);
 			}
 		}
 		return result;
@@ -86,39 +80,33 @@ const Auth = {
 	// Auth verification middleware
 	isLogged: (req, res, next) => {
 		const bearer = req.headers.authorization;
-		const user = {
-			email: req.body.email,
-			password: req.body.password,
-		};
-		res.locals.level = 0;
-		if(bearer && typeof user.email === "string" && typeof user.password === "string") {
+		res.locals.user = null;
+		if(bearer) {
 			let tokenUser = null;
 			const token = bearer.replace("Bearer ", "");
 			try {
 				tokenUser = jwt.verify(token, process.env.JWT_SECRET);
-				if(tokenUser.data.email != user.email || tokenUser.data.password != user.password)
-					tokenUser = null;
 			} catch(e) {
 				console.log(e);
 			}
 			if(tokenUser)
-				res.locals.level = tokenUser.data.level;
+				res.locals.user = {...tokenUser.data};
 		}
 		next();
 	},
 
 	// Creates new user
 	create: (req, res) => {
-		const userLevel = res.locals.level;
+		const userLevel = res.locals.user.level;
 		let result = {
 			caption: "",
 			status: 0
 		};
 		if(userLevel < 2)
-			result.caption = "Ce compte ne permet pas ce genre d'action.";
+			result.caption = "Privilèges insuffisants.";
 		else {
 			const user = req.body;
-			const database = new Database(process.env.DB_USERS);
+			const db = new Database(process.env.DB_USERS);
 			if(typeof user.newName != "string" || user.newName.length <= 2)
 				result.caption = "Le nom doit contenir 3 caractères minimum.";
 			else if(typeof user.newEmail != "string" || user.newEmail.length <= 6)
@@ -126,11 +114,11 @@ const Auth = {
 			else if(typeof user.newPassword != "string" || user.newPassword.length <= 4)
 				result.caption = "Le mot de passe doit contenir 5 caractères minimum.";
 			else {
-				const exists = database.get("email", user.newEmail);
+				const exists = db.get("email", user.newEmail);
 				if(exists)
 					result.caption = "Cet utilisateur existe déjà !";
 				else {
-					database.push({
+					db.push({
 						email: user.newEmail,
 						password: user.newPassword,
 						name: user.newName,
@@ -140,6 +128,33 @@ const Auth = {
 					result.caption = "Compte créé avec succès, veuillez vérifier votre e-mail !";
 					result.status = 1;
 				}
+			}
+		}
+		return result;
+	},
+
+	// Removes user
+	remove: (req, res) => {
+		const admin = res.locals.user;
+		const email = req.body.email;
+		let result = {
+			caption: "",
+			status: 0
+		};
+		if(!admin || admin.level < 2)
+			result.caption = "Privilèges insuffisants.";
+		else if(typeof email != "string")
+			result.caption = "Renseigner l'email du compte à supprimer.";
+		else if (email === admin.email)
+			result.caption = "Impossible de supprimer votre propre compte !";
+		else {
+			const db = new Database(process.env.DB_USERS);
+			if(!db.get("email", email))
+				result.caption = "Ce compte n'existe pas !";
+			else {
+				db.remove("email", email);
+				result.caption = `${email} supprimé avec succès !`;
+				result.status = 1;
 			}
 		}
 		return result;
