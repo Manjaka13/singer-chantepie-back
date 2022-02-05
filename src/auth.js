@@ -3,6 +3,7 @@
 */
 
 const jwt = require("jsonwebtoken");
+const uuidv4 = require("uuid").v4;
 const Database = require("./database");
 const attempt = require("./attempt");
 
@@ -42,7 +43,7 @@ const Auth = {
 				delete authUser._id;
 				delete authUser.verified;
 				delete authUser.password;
-				result.caption = jwt.sign({
+				authUser.token = jwt.sign({
 					exp: Math.floor(Date.now() / 1000) + expiration,
 					data: authUser
 				}, process.env.JWT_SECRET);
@@ -66,6 +67,7 @@ const Auth = {
 			try {
 				const jwtUser = db.get("email", jwt.verify(token, process.env.JWT_SECRET).data.email);
 				delete jwtUser._id;
+				delete jwtUser.verified;
 				delete jwtUser.password;
 				result.status = 1;
 				result.caption = "Utilisateur vérifié !";
@@ -107,25 +109,26 @@ const Auth = {
 		else {
 			const user = req.body;
 			const db = new Database(process.env.DB_USERS);
-			if(typeof user.newName != "string" || user.newName.length <= 2)
+			if(typeof user.name != "string" || user.name.length <= 2)
 				result.caption = "Le nom doit contenir 3 caractères minimum.";
-			else if(typeof user.newEmail != "string" || user.newEmail.length <= 6)
+			else if(typeof user.email != "string" || user.email.length <= 6)
 				result.caption = "L'e-mail est invalide.";
-			else if(typeof user.newPassword != "string" || user.newPassword.length <= 4)
-				result.caption = "Le mot de passe doit contenir 5 caractères minimum.";
+			else if(typeof user.level != "number" || user.level < 0 || user.level > 2 )
+				result.caption = "Le type de compte à créer est invalide.";
 			else {
-				const exists = db.get("email", user.newEmail);
+				const exists = db.get("email", user.email);
 				if(exists)
-					result.caption = "Cet utilisateur existe déjà !";
+					result.caption = "Cet e-mail est déjà assigné à un compte !";
 				else {
-					db.push({
-						email: user.newEmail,
-						password: user.newPassword,
-						name: user.newName,
-						level: 1,
+					const newUser = {
+						email: user.email,
+						password: uuidv4(),
+						name: user.name,
+						level: user.level,
 						verified: false
-					});
-					result.caption = "Compte créé avec succès, veuillez vérifier votre e-mail !";
+					};
+					db.push(newUser);
+					result.caption = "Créé avec succès, vérifier votre e-mail !";
 					result.status = 1;
 				}
 			}

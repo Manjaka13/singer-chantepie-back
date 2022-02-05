@@ -6,6 +6,7 @@ const Express = require("express");
 const auth = require("../auth");
 const Database = require("../database");
 const route = Express.Router();
+const log = require("../log");
 const path = "/user/";
 
 // Get all users
@@ -14,7 +15,8 @@ route.get("/", auth.isLogged, (req, res) => {
 		caption: "Privilèges insuffisants.",
 		status: 0
 	};
-	if(res.locals.user.level >= 1)
+	log("user/", req);
+	if(res.locals.user && res.locals.user.level >= 1)
 		result = {
 			caption: "Liste des comptes",
 			status: 1,
@@ -29,21 +31,25 @@ route.get("/", auth.isLogged, (req, res) => {
 
 // Sign in incoming user
 route.post("/sign", (req, res) => {
+	log("user/sign", req);
 	res.json(auth.sign(req));
 });
 
 // Verifies token
 route.get("/verify", (req, res) => {
+	log("user/verify", req);
 	res.json(auth.verify(req));
 });
 
 // Creates new user
 route.post("/new", auth.isLogged, (req, res) => {
+	log("user/new", req);
 	res.json(auth.create(req, res));
 });
 
 // Creates new user
-route.delete("/delete", auth.isLogged, (req, res) => {
+route.post("/delete", auth.isLogged, (req, res) => {
+	log("user/delete", req);
 	res.json(auth.remove(req, res));
 });
 

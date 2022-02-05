@@ -7,6 +7,14 @@
             "level": 2,
             "verified": true,
             "_id": "52b9b566-1a32-4d74-bdc5-9b0b9967659a"
+        },
+        {
+            "email": "t.andrian@gmail.com",
+            "password": "d62b4bc7-257d-4d8e-a8cd-8c6a3c299de7",
+            "name": "Tahiry",
+            "level": 1,
+            "verified": false,
+            "_id": "6f6da84e-ffee-44fb-89f7-62c1f06e5e6d"
         }
     ]
 }

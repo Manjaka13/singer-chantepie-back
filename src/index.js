@@ -7,6 +7,7 @@ require("dotenv").config();
 const Express = require("express");
 const cors = require("cors");
 const user = require("./api/user");
+const contacts = require("./api/contacts");
 
 // Setup
 const app = Express();
@@ -20,6 +21,7 @@ app.use(Express.json());
 
 // Mount APIs
 app.use(user.path, user.route);
+app.use(contacts.path, contacts.route);
 
 // Default home route
 app.get("/", (req, res) => {
