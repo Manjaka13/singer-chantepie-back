@@ -30,7 +30,7 @@ route.get("/", auth.isLogged, (req, res) => {
 
 // Add new contact
 route.post("/new", (req, res) => {
-	const d = new Date().getDay();
+	const d = new Date().getDate();
 	const m = new Date().getMonth();
 	const y = new Date().getFullYear();
 	const now = `${d < 10 ? '0' + d : d}/${m < 10 ? '0' + m : m}/${y}`;
@@ -40,7 +40,9 @@ route.post("/new", (req, res) => {
 		status: 0
 	};
 
-	if(typeof email != "string")
+	log("contacts/new", req);
+
+	if(typeof email != "string" || email.length < 8)
 		result.caption = "Renseigner votre e-mail.";
 	else {
 		const db = new Database(process.env.DB_CONTACTS);
@@ -67,6 +69,7 @@ route.post("/delete", auth.isLogged, (req, res) => {
 		caption: "",
 		status: 0
 	};
+	log("contacts/delete", req);
 	if(!admin || admin.level < 2)
 		result.caption = "Privilèges insuffisants.";
 	else if(typeof email != "string")
