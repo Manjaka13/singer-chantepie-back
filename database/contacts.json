@@ -1,0 +1,24 @@
+{
+    "data": [
+        {
+            "email": "sanchez.rocco@outlook.fr",
+            "date": "06/01/2022",
+            "_id": "86faa65d-0824-41b5-96fd-6e3d3004eb1e"
+        },
+        {
+            "email": "t.andrian@gmail.com",
+            "date": "06/01/2022",
+            "_id": "07edfcdb-7bef-443a-835d-cac0b012c5a6"
+        },
+        {
+            "email": "manjaka.rajaonson@gmail.com",
+            "date": "06/01/2022",
+            "_id": "12e34b13-543f-49fa-ad6d-2684812b8e9d"
+        },
+        {
+            "email": "test@gmail.com",
+            "date": "06/01/2022",
+            "_id": "5947868e-4b0b-43ce-95ca-6a2b54538ef8"
+        }
+    ]
+}
